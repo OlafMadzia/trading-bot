@@ -1,0 +1,21 @@
+2026-10-27 09:02:29  Signal 2026-09-30: SPY 20%, QQQ 20%, EFA 20%, EEM 20%, DBC 20%
+2026-10-27 09:02:29  New monthly signal -> rebalancing
+2026-10-27 09:02:34  ORDER BUY VUSAl_EQ qty=9.025 -> NEW
+2026-10-27 09:02:36  ORDER BUY EQQQl_EQ qty=1.838 -> NEW
+2026-10-27 09:02:38  ORDER BUY XMWXl_EQ qty=29.194 -> NEW
+2026-10-27 09:02:40  ORDER BUY VFEMl_EQ qty=16.948 -> NEW
+2026-10-27 09:02:41  ERROR buying DBC: POST /equity/orders/market -> 400: {"type":"/api-errors/insufficient-free-for-stocks-buy","title":"Error while placing the order","status":400,"detail":"Insufficient funds","traceId":"fef52e5547364df9ecd7a1be43496b19"}
+2026-10-27 09:02:41  1 order(s) failed; will retry next run
+2026-10-27 09:02:47  Equity £3,988.28  bot +0.00%  vs S&P 500 +0.00%
+2026-10-27 09:03:25  Signal 2026-09-30: SPY 20%, QQQ 20%, EFA 20%, EEM 20%, DBC 20%
+2026-10-27 09:03:25  New monthly signal -> rebalancing
+2026-10-27 09:03:39  ERROR buying DBC: POST /equity/orders/market -> 400: {"type":"/api-errors/insufficient-free-for-stocks-buy","title":"Error while placing the order","status":400,"detail":"Insufficient funds","traceId":"dbff83f120a110441ef3180f2587443b"}
+2026-10-27 09:03:39  1 order(s) failed; will retry next run
+2026-10-27 09:03:52  Equity £4,972.44  bot +0.00%  vs S&P 500 +0.00%
+2026-10-27 09:04:28  Signal 2026-09-30: SPY 20%, QQQ 20%, EFA 20%, EEM 20%, DBC 20%
+2026-10-27 09:04:28  New monthly signal -> rebalancing
+2026-10-27 09:04:42  ORDER BUY CMODl_EQ qty=35.055 -> NEW
+2026-10-27 09:05:01  Equity £4,971.84  bot -0.01%  vs S&P 500 +0.02%
+2026-10-27 09:05:32  Signal 2026-09-30: SPY 20%, QQQ 20%, EFA 20%, EEM 20%, DBC 20%
+2026-10-27 09:05:32  No new signal; holding
+2026-10-27 09:05:39  Equity £4,971.79  bot -0.01%  vs S&P 500 -0.01%

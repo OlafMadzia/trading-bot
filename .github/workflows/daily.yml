@@ -1,0 +1,38 @@
+name: Daily trading bot
+
+on:
+  schedule:
+    - cron: "30 8 * * 1-5"   # 08:30 UTC Mon-Fri (London market is open)
+  workflow_dispatch:          # "Run workflow" button for manual runs
+
+permissions:
+  contents: write             # lets the job commit its logs back
+
+concurrency: trading-bot      # never run two copies at once
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Run bot
+        env:
+          T212_API_KEY: ${{ secrets.T212_API_KEY }}
+          T212_API_SECRET: ${{ secrets.T212_API_SECRET }}
+          T212_ENV: demo
+          PYTHONIOENCODING: utf-8
+        run: python run_daily.py
+      - name: Save logs and state
+        if: always()
+        run: |
+          git config user.name "trading-bot"
+          git config user.email "trading-bot@users.noreply.github.com"
+          git add data/state.json data/equity_log.csv data/trades.csv logs/bot.log || true
+          git diff --cached --quiet || git commit -m "Daily run $(date -u +%F)"
+          git push
