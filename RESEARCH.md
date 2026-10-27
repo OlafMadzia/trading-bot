@@ -73,6 +73,45 @@ one lucky setting.
    matched the S&P 500's return with about half the drawdown.
 4. Live results will be noisier than the backtest. Judge them after 6–12 months, not weeks.
 
+## Round 2: published tactical models, machine learning and "learning" systems
+`run_research.py` → `data/research2_results.txt`. Common out-of-sample window: May 2011 – Oct 2026.
+
+| Strategy | Return/yr | Worst drop | Sharpe | t vs LIVE |
+|---|---|---|---|---|
+| **Momentum top-5 (LIVE)** | **9.5%** | **-15.5%** | **0.85** | — |
+| Vol-scaled momentum top-5 | 8.9% | -12.8% | 0.86 | -0.8 |
+| Adaptive Asset Allocation (Butler 2012) | 8.5% | -13.1% | 0.85 | -0.9 |
+| Meta-learner: top-3 strategies by 12m Sharpe | 8.3% | -18.7% | 0.87 | -1.0 |
+| Meta-learner: Hedge algorithm (all strategies) | 7.8% | -16.4% | 0.82 | -2.0 |
+| ML gradient boosting ranker | 6.8% | -14.2% | 0.75 | **-2.4** |
+| ML ridge regression ranker | 5.6% | -18.3% | 0.60 | **-3.2** |
+| DAA (Keller 2018) | 5.7% | -21.8% | 0.65 | **-2.3** |
+| VAA-G4 (Keller 2017) | 3.8% | -21.3% | 0.39 | **-2.3** |
+| *Buy & hold S&P 500* | *13.8%* | *-33.7%* | *0.84* | +1.7 |
+
+- **Machine learning didn't help.** A gradient-boosting model retrained every month on
+  15 momentum, volatility and trend features was *significantly worse* than plain momentum.
+  At realistic costs it gets a similar Sharpe but less return. There isn't enough
+  signal in monthly ETF data for a flexible model to find more than momentum already captures.
+- **Chasing the hottest strategy hurts.** The faster a meta-learner shifts money toward
+  recent winners, the worse it does (Hedge eta 2 → 200: Sharpe 0.88 → 0.61, drawdown -15% → -28%).
+  "Pick the single best recent strategy" was among the worst results.
+- **Keller's VAA/DAA** looked great in their papers but did poorly here, with high turnover and many false alarms.
+- **Buy-and-hold has had the best return since 2011** (t = +1.7 vs momentum; suggestive but not significant).
+  Momentum's value is the smaller drawdowns, not higher returns.
+
+### What we built from this: champion/challenger + cost learning
+Since aggressive learning hurts, the bot learns *conservatively* (`bot/league.py`):
+- Every month it re-scores all 15 candidates on the last 10 years, including every month it has traded live.
+- It switches strategy only if a challenger beats the champion with a paired t-stat > 2,
+  has a better Sharpe in **both** halves of that window, and doesn't have a much deeper drawdown.
+- It learns its real trading cost from its own Trading 212 fills (fees + slippage) and
+  uses that cost in the league. If the bot discovers trading is cheap, higher-turnover
+  strategies get a fairer score. First measurement: 0.03% per trade vs the 0.2% assumed.
+
+Outputs: `data/league.csv` (latest ranking), `data/champion_history.csv` (which strategy
+was live each month), `data/fills.csv` (measured costs).
+
 ## Ideas not tested yet
 - Momentum on individual stocks (needs survivorship-bias-free data; can't be done honestly with free data)
 - Machine-learning models (high risk of overfitting; only worth trying if they beat momentum out-of-sample)

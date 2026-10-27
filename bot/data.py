@@ -10,6 +10,8 @@ CACHE = os.path.join(ROOT, "data", "cache")
 # Liquid US ETFs covering stocks, bonds, gold, commodities, real estate.
 UNIVERSE = ["SPY", "QQQ", "IWM", "EFA", "EEM", "TLT", "IEF", "GLD", "DBC", "VNQ"]
 CASH = "SHY"  # short-term treasuries, used as the "risk-off" holding
+# Extra ETFs needed by the published Keller strategies (VAA / DAA)
+EXTRA = ["AGG", "LQD", "HYG", "VGK", "EWJ"]
 
 
 # For candlestick tests: broad ETFs + large US stocks. Note survivorship bias:

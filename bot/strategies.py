@@ -155,6 +155,73 @@ def dip_buy(prices, universe, hold=5, max_pos=4):
     return w
 
 
+def _mom13612(p):
+    """Keller's fast momentum score: weights recent months more heavily."""
+    r = lambda n: p.iloc[-1] / p.iloc[-1 - n] - 1
+    return 12 * r(21) + 4 * r(63) + 2 * r(126) + r(252)
+
+
+def vaa(prices, offensive=("SPY", "EFA", "EEM", "AGG"), defensive=("LQD", "IEF", "SHY")):
+    """Keller & Keuning (2017) Vigilant Asset Allocation G4: if ANY offensive
+    asset has negative momentum, the whole portfolio goes defensive."""
+    def pick(p):
+        off, de = _mom13612(p[list(offensive)]), _mom13612(p[list(defensive)])
+        return {off.idxmax(): 1.0} if (off > 0).all() else {de.idxmax(): 1.0}
+    return _rebalance_monthly(prices, pick)
+
+
+def daa(prices, risky=("SPY", "IWM", "QQQ", "VGK", "EWJ", "EEM", "VNQ", "DBC",
+                       "GLD", "TLT", "HYG", "LQD"),
+        canary=("EEM", "AGG"), defensive=("SHY", "IEF", "LQD"), top=6):
+    """Keller (2018) Defensive Asset Allocation: two 'canary' assets decide how
+    much goes defensive (0, 50 or 100%); the rest goes to the top-6 risky."""
+    def pick(p):
+        bad = int((_mom13612(p[list(canary)]) <= 0).sum())
+        def_frac = bad / 2
+        w = {}
+        if def_frac < 1:
+            best = _mom13612(p[list(risky)]).nlargest(top).index
+            w.update({t: (1 - def_frac) / top for t in best})
+        if def_frac > 0:
+            d = _mom13612(p[list(defensive)]).idxmax()
+            w[d] = w.get(d, 0) + def_frac
+        return w
+    return _rebalance_monthly(prices, pick)
+
+
+def adaptive_aa(prices, universe, top=5, lookback=126, vol_lb=60):
+    """Butler et al. (2012) Adaptive Asset Allocation: pick the top momentum
+    assets, then weight them by inverse volatility instead of equally."""
+    def pick(p):
+        u = p[universe]
+        mom = u.iloc[-1] / u.iloc[-lookback] - 1
+        best = mom[(mom > 0) & (u.iloc[-1] > u.iloc[-200:].mean())].nlargest(top).index
+        if len(best) == 0:
+            return {CASH: 1.0}
+        inv = 1 / u[best].pct_change().iloc[-vol_lb:].std()
+        w = (inv / inv.sum() * len(best) / top).to_dict()
+        if len(best) < top:
+            w[CASH] = 1 - sum(w.values())
+        return w
+    return _rebalance_monthly(prices, pick)
+
+
+def momentum_volscaled(prices, universe, top=5):
+    """Risk-adjusted momentum: rank by 6-12m return divided by volatility
+    (Barroso & Santa-Clara style), with the same 200d trend filter."""
+    def pick(p):
+        u = p[universe]
+        ret = (u.iloc[-1] / u.iloc[-126] - 1 + u.iloc[-1] / u.iloc[-252] - 1) / 2
+        score = ret / (u.pct_change().iloc[-126:].std() * 252 ** 0.5)
+        ok = (u.iloc[-1] > u.iloc[-200:].mean()) & (score > 0)
+        winners = score[ok].nlargest(top).index
+        w = {t: 1 / top for t in winners}
+        if len(winners) < top:
+            w[CASH] = (top - len(winners)) / top
+        return w
+    return _rebalance_monthly(prices, pick)
+
+
 def with_vol_target(weights, prices, target=0.12, lookback=20):
     """Overlay: scale any strategy's weights to a target volatility."""
     rets = (weights.shift(1) * prices.pct_change()).sum(axis=1)

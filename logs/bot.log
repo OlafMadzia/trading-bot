@@ -31,3 +31,8 @@ RuntimeError: GET /equity/orders -> 401:
 2026-10-27 09:27:30  Signal 2026-09-30: SPY 20%, QQQ 20%, EFA 20%, EEM 20%, DBC 20%
 2026-10-27 09:27:30  No new signal; holding
 2026-10-27 09:27:38  Equity £100.02  bot +0.15%  vs S&P 500 +0.12%
+2026-10-27 09:37:12  Cost learning: 5 fills, observed 0.031%/trade -> using 0.166%
+2026-10-27 09:37:31  League (last 10y, Sharpe): Momentum top-5 1.11; Vol-scaled momentum top-5 1.07; SPY vol-target 1.03; Meta-learner (gentle Hedge) 1.01; Adaptive Asset Alloc 0.98
+2026-10-27 09:37:31  Champion stays 'Momentum top-5' (no challenger beat it by more than luck)
+2026-10-27 09:37:47  No new signal; holding (Momentum top-5)
+2026-10-27 09:37:54  Equity £99.99  bot +0.12%  vs S&P 500 +0.17%
