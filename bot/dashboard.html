@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trading Bot Results</title>
+<meta name="description" content="Live paper-trading results of an automated ETF momentum strategy versus the S&P 500, plus 18 years of backtests.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --series-1: #2a78d6; --series-2: #eb6834; --up: #006300; --down: #d03b3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --series-1: #3987e5; --series-2: #d95926; --up: #0ca30c; --down: #e66767;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --series-1: #3987e5; --series-2: #d95926; --up: #0ca30c; --down: #e66767;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 48px; }
+header h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.01em; }
+header p { margin: 0; color: var(--ink-2); }
+header .meta { font-size: 13px; color: var(--muted); margin-top: 6px; }
+a { color: var(--series-1); }
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0; }
+.tile, .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; }
+.tile { padding: 14px 16px; }
+.tile .label { font-size: 13px; color: var(--ink-2); }
+.tile .value { font-size: 24px; font-weight: 600; margin-top: 2px; }
+.tile .sub { font-size: 13px; color: var(--muted); }
+.tile .value .small { font-size: 17px; line-height: 1.35; display: inline-block; padding-top: 4px; }
+.up { color: var(--up); } .down { color: var(--down); }
+.card { padding: 18px 20px; margin-bottom: 16px; }
+.card h2 { font-size: 17px; margin: 0 0 2px; }
+.card .desc { color: var(--ink-2); font-size: 14px; margin: 0 0 12px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.two .card { margin-bottom: 0; }
+.legend { display: flex; gap: 16px; font-size: 13px; color: var(--ink-2); margin-bottom: 6px; flex-wrap: wrap; }
+.legend span::before { content: ""; display: inline-block; width: 14px; height: 3px; border-radius: 2px;
+  background: var(--c); vertical-align: middle; margin-right: 6px; }
+.chart { position: relative; width: 100%; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--ring);
+  border-radius: 8px; padding: 6px 10px; font-size: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  white-space: nowrap; display: none; z-index: 2; }
+.tip b { display: block; margin-bottom: 2px; }
+.tip .row::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--c); margin-right: 6px; }
+.empty { color: var(--muted); font-size: 14px; padding: 28px 0; text-align: center; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th { text-align: left; font-weight: 600; color: var(--ink-2); border-bottom: 1px solid var(--axis); padding: 6px 8px; }
+td { border-bottom: 1px solid var(--grid); padding: 6px 8px; font-variant-numeric: tabular-nums; }
+td.num, th.num { text-align: right; }
+tr.champ td { font-weight: 600; }
+.tag { font-size: 11px; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--ring); color: var(--ink-2); margin-left: 6px; }
+.scroll { overflow-x: auto; }
+#league { min-width: 600px; } #league td:first-child, #holdings td:first-child { white-space: nowrap; }
+ul.findings { margin: 0; padding-left: 20px; } ul.findings li { margin: 6px 0; }
+footer { color: var(--muted); font-size: 13px; margin-top: 24px; }
+@media (max-width: 760px) {
+  .tiles { grid-template-columns: 1fr 1fr; }
+  .two { grid-template-columns: 1fr; }
+  .two .card { margin-bottom: 16px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Automated ETF trading bot</h1>
+    <p>A paper-trading experiment on a Trading 212 demo account: can a rules-based strategy do better than just holding the S&amp;P 500?</p>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <section class="tiles" id="tiles"></section>
+
+  <section class="card">
+    <h2>Live results: bot vs S&amp;P 500</h2>
+    <p class="desc">Real paper trades since the start date. The S&amp;P 500 line shows the same starting money simply held in an S&amp;P 500 fund.</p>
+    <div class="legend"><span style="--c:var(--series-1)">Bot</span><span style="--c:var(--series-2)">S&amp;P 500</span></div>
+    <div class="chart" id="live"></div>
+  </section>
+
+  <section class="card">
+    <h2>Backtest 2008–2026: £5,000 invested</h2>
+    <p class="desc">The live strategy replayed on 18 years of history with trading costs. The S&amp;P 500 ended higher, but the strategy fell far less along the way.</p>
+    <div class="legend"><span style="--c:var(--series-1)">Momentum top-5</span><span style="--c:var(--series-2)">S&amp;P 500</span></div>
+    <div class="chart" id="bt"></div>
+    <h2 style="margin-top:18px">Drawdown: fall from previous peak</h2>
+    <p class="desc">The S&amp;P 500 fell more than half in 2008–09; the strategy's worst fall was far smaller.</p>
+    <div class="chart" id="dd"></div>
+  </section>
+
+  <div class="two">
+    <section class="card">
+      <h2>Current holdings</h2>
+      <p class="desc" id="holddesc"></p>
+      <div class="scroll"><table id="holdings"></table></div>
+    </section>
+    <section class="card">
+      <h2>Recent trades</h2>
+      <p class="desc">Latest orders placed through the Trading 212 API.</p>
+      <div class="scroll"><table id="trades"></table></div>
+    </section>
+  </div>
+  <div style="height:16px"></div>
+
+  <section class="card">
+    <h2>Strategy league</h2>
+    <p class="desc">Every month the bot re-scores all candidate strategies on the last 10 years, using the trading cost it measured from its own fills. It only switches if a challenger beats the current strategy by more than luck (paired t-statistic above 2, better in both halves of the period, no much deeper drawdown).</p>
+    <div class="scroll"><table id="league"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>What the research found</h2>
+    <ul class="findings">
+      <li><b>Candlestick patterns don't work.</b> 24 patterns across 40 instruments and 26 years: none of the 15 classic reversal patterns predicted what they claim in both decades tested.</li>
+      <li><b>Machine learning didn't beat simple momentum.</b> A gradient-boosting model retrained monthly on 15 features was significantly worse out-of-sample.</li>
+      <li><b>Chasing the hottest strategy hurts.</b> The faster a meta-learner shifts money to recent winners, the worse its results.</li>
+      <li><b>Momentum's edge is risk, not return.</b> Since 2008 it has trailed the S&amp;P 500, but its worst fall was about a third as deep.</li>
+    </ul>
+    <p class="desc" style="margin-top:10px">Full method and results: <a href="https://github.com/OlafMadzia/trading-bot/blob/main/RESEARCH.md">RESEARCH.md</a></p>
+  </section>
+
+  <footer>Paper trading only, not investment advice. Built with Python, scikit-learn, the Trading 212 API and GitHub Actions. <a href="https://github.com/OlafMadzia/trading-bot">Source code</a></footer>
+</main>
+
+<div class="tip" id="tip"></div>
+<script>
+const D = /*__DATA__*/null;
+const $ = id => document.getElementById(id);
+const gbp = v => "£" + v.toLocaleString("en-GB", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const gbp0 = v => "£" + Math.round(v).toLocaleString("en-GB");
+const pct = v => (v >= 0 ? "+" : "") + v.toFixed(2) + "%";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const NAMES = {SPY:"S&P 500", QQQ:"Nasdaq-100", IWM:"US small caps", EFA:"Developed ex-US", EEM:"Emerging markets",
+  TLT:"US long bonds", IEF:"US 7-10y bonds", GLD:"Gold", DBC:"Commodities", VNQ:"US property", SHY:"US short bonds",
+  AGG:"US aggregate bonds", LQD:"US corp bonds", HYG:"US high yield", VGK:"Europe", EWJ:"Japan"};
+
+$("meta").textContent = `Updated ${D.updated}` + (D.start ? ` · live since ${new Date(D.start).toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric"})}` : "");
+
+// ---- tiles
+const last = D.equity[D.equity.length - 1];
+const tiles = [];
+if (last) {
+  const s0 = D.start_equity || D.equity[0].bot;
+  const br = (last.bot / s0 - 1) * 100, sr = (last.spy / s0 - 1) * 100;
+  tiles.push(["Bot value", gbp(last.bot), `<span class="${br >= 0 ? "up" : "down"}">${pct(br)}</span> since start`]);
+  tiles.push(["Same money in S&P 500", gbp(last.spy), `<span class="${sr >= 0 ? "up" : "down"}">${pct(sr)}</span> since start`]);
+}
+tiles.push(["Current strategy", `<span class="small">${esc(D.champion)}</span>`, `${D.switches} switch${D.switches === 1 ? "" : "es"} in ${D.months} monthly review${D.months === 1 ? "" : "s"}`]);
+tiles.push(["Measured trading cost", D.cost ? (D.cost * 100).toFixed(2) + "%" : "–",
+  D.cost ? "per trade, learned from fills" : "first measured at the next rebalance"]);
+$("tiles").innerHTML = tiles.map(([l, v, s]) =>
+  `<div class="tile"><div class="label">${l}</div><div class="value">${v}</div><div class="sub">${s}</div></div>`).join("");
+
+// ---- line chart with crosshair tooltip
+function lineChart(el, series, {height = 260, fmt = gbp0, zeroLine = false, dateFmt} = {}) {
+  const tip = $("tip");
+  const draw = () => {
+    const W = el.clientWidth, H = height, m = {l: 52, r: 12, t: 10, b: 24};
+    const xs = series[0].pts.map(p => new Date(p[0]).getTime());
+    const all = series.flatMap(s => s.pts.map(p => p[1]));
+    let lo = Math.min(...all), hi = Math.max(...all);
+    if (zeroLine) hi = Math.max(hi, 0);
+    // round tick values: step of 1, 2, 2.5 or 5 x 10^n, axis snapped to whole steps
+    const raw = (hi - lo || Math.abs(hi) * 0.02 || 1) / 4, mag = 10 ** Math.floor(Math.log10(raw));
+    const step = [1, 2, 2.5, 5, 10].map(f => f * mag).find(s => s >= raw);
+    lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+    const ticks = []; for (let v = lo; v <= hi + step / 2; v += step) ticks.push(v);
+    const x0 = xs[0], x1 = xs[xs.length - 1];
+    const X = t => m.l + (x1 === x0 ? (W - m.l - m.r) / 2 : (t - x0) / (x1 - x0) * (W - m.l - m.r));
+    const Y = v => m.t + (hi - v) / (hi - lo) * (H - m.t - m.b);
+    let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img">`;
+    for (const v of ticks) {
+      const y = Y(v);
+      s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y}" y2="${y}" stroke="var(--grid)" stroke-width="1"/>`;
+      s += `<text x="${m.l - 8}" y="${y + 4}" text-anchor="end">${fmt(v)}</text>`;
+    }
+    if (zeroLine) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--axis)"/>`;
+    const nT = Math.max(2, Math.min(7, Math.floor((W - m.l - m.r) / 90)));
+    for (let i = 0; i < nT; i++) {
+      const t = x0 + (x1 - x0) * i / (nT - 1), d = new Date(t);
+      s += `<text x="${X(t)}" y="${H - 6}" text-anchor="${i === 0 ? "start" : i === nT - 1 ? "end" : "middle"}">${dateFmt ? dateFmt(d) : d.getFullYear()}</text>`;
+    }
+    for (const se of series) {
+      const d = se.pts.map((p, i) => `${i ? "L" : "M"}${X(xs[i]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("");
+      s += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    }
+    s += `<line id="${el.id}-x" y1="${m.t}" y2="${H - m.b}" stroke="var(--axis)" stroke-width="1" visibility="hidden"/>`;
+    series.forEach((se, k) => s += `<circle id="${el.id}-d${k}" r="4" fill="${se.color}" stroke="var(--surface)" stroke-width="2" visibility="hidden"/>`);
+    s += `<rect x="${m.l}" y="0" width="${W - m.l - m.r}" height="${H}" fill="transparent"/></svg>`;
+    el.innerHTML = s;
+    const svg = el.querySelector("svg");
+    const hide = () => { tip.style.display = "none"; el.querySelector(`#${el.id}-x`).setAttribute("visibility", "hidden");
+      series.forEach((_, k) => el.querySelector(`#${el.id}-d${k}`).setAttribute("visibility", "hidden")); };
+    svg.onpointerleave = hide;
+    svg.onpointermove = e => {
+      const r = svg.getBoundingClientRect(), px = e.clientX - r.left;
+      let i = 0, best = Infinity;
+      xs.forEach((t, j) => { const dd = Math.abs(X(t) - px); if (dd < best) { best = dd; i = j; } });
+      const cx = X(xs[i]), xl = el.querySelector(`#${el.id}-x`);
+      xl.setAttribute("x1", cx); xl.setAttribute("x2", cx); xl.setAttribute("visibility", "visible");
+      series.forEach((se, k) => { const c = el.querySelector(`#${el.id}-d${k}`);
+        c.setAttribute("cx", cx); c.setAttribute("cy", Y(se.pts[i][1])); c.setAttribute("visibility", "visible"); });
+      tip.innerHTML = `<b>${new Date(xs[i]).toLocaleDateString("en-GB", {day: "numeric", month: "short", year: "numeric"})}</b>` +
+        series.map(se => `<div class="row" style="--c:${se.color}">${esc(se.name)}: ${fmt(se.pts[i][1])}</div>`).join("");
+      tip.style.display = "block";
+      const tx = e.pageX + 14, tw = tip.offsetWidth;
+      tip.style.left = (tx + tw > window.scrollX + document.documentElement.clientWidth - 8 ? e.pageX - tw - 14 : tx) + "px";
+      tip.style.top = (e.pageY - tip.offsetHeight - 10) + "px";
+    };
+  };
+  draw();
+  new ResizeObserver(draw).observe(el);
+}
+
+if (D.equity.length >= 2) {
+  lineChart($("live"), [
+    {name: "Bot", color: "var(--series-1)", pts: D.equity.map(r => [r.date, r.bot])},
+    {name: "S&P 500", color: "var(--series-2)", pts: D.equity.map(r => [r.date, r.spy])},
+  ], {fmt: gbp, height: 220, dateFmt: d => d.toLocaleDateString("en-GB", {day: "numeric", month: "short"})});
+} else {
+  $("live").innerHTML = `<div class="empty">The live chart fills in as trading days pass (${D.equity.length} day so far).</div>`;
+}
+const bt = D.backtest, BT = Object.keys(bt);
+lineChart($("bt"), BT.map((n, k) => ({name: n, color: `var(--series-${k + 1})`, pts: bt[n].eq})));
+lineChart($("dd"), BT.map((n, k) => ({name: n, color: `var(--series-${k + 1})`, pts: bt[n].dd})),
+  {height: 160, fmt: v => v.toFixed(0) + "%", zeroLine: true});
+
+// ---- tables
+const total = D.holdings.reduce((a, h) => a + parseFloat(h[1]), 0);
+$("holddesc").textContent = `Positions chosen by ${D.champion}.`;
+$("holdings").innerHTML = `<tr><th>Asset</th><th class="num">Value</th><th class="num">Weight</th></tr>` +
+  D.holdings.sort((a, b) => b[1] - a[1]).map(([t, v]) =>
+    `<tr><td>${esc(NAMES[t] || t)}<span class="tag">${esc(t)}</span></td><td class="num">${gbp(+v)}</td><td class="num">${(v / total * 100).toFixed(0)}%</td></tr>`).join("");
+$("trades").innerHTML = `<tr><th>Date</th><th>Side</th><th>Asset</th><th class="num">Qty</th></tr>` +
+  (D.trades.length ? D.trades.map(t =>
+    `<tr><td>${esc(t.time.slice(0, 10))}</td><td>${esc(t.side)}</td><td>${esc(NAMES[t.signal] || t.signal)}</td><td class="num">${esc(t.qty)}</td></tr>`).join("")
+    : `<tr><td colspan="4" class="empty">No trades yet</td></tr>`);
+$("league").innerHTML = `<tr><th>Strategy</th><th class="num">Return/yr</th><th class="num">Worst drop</th><th class="num">Sharpe</th><th class="num">t vs current</th></tr>` +
+  (D.league.length ? D.league.map(r =>
+    `<tr class="${r.strategy === D.champion ? "champ" : ""}"><td>${esc(r.strategy)}${r.strategy === D.champion ? '<span class="tag">current</span>' : ""}</td>` +
+    `<td class="num">${(+r["CAGR %"]).toFixed(1)}%</td><td class="num">${(+r["MaxDD %"]).toFixed(1)}%</td>` +
+    `<td class="num">${(+r.Sharpe).toFixed(2)}</td><td class="num">${r.strategy === D.champion ? "–" : (+r["t vs champion"]).toFixed(2)}</td></tr>`).join("")
+    : `<tr><td colspan="5" class="empty">First league runs at the next month end</td></tr>`);
+</script>
+</body>
+</html>

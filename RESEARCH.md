@@ -12,7 +12,7 @@ Raw output is in `data/candle_results.txt` and `data/backtest_results.txt`.
 
 ## 1. Candlestick patterns: they don't work
 24 patterns, 40 instruments (index/sector ETFs and 30 large US stocks), 2000–2026,
-about 400,000 pattern occurrences. Each one is compared with buying on a random day.
+about 256,000 pattern occurrences. Each one is compared with buying on a random day.
 
 | Pattern | Supposed to predict | What actually happened (5 days later, 2013–26) |
 |---|---|---|
