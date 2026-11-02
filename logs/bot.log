@@ -48,3 +48,11 @@ RuntimeError: GET /equity/orders -> 401:
 2026-10-29 09:16:49  Equity £100.27  bot +0.40%  vs S&P 500 +0.75%
 2026-10-30 09:16:35  No new signal; holding (Momentum top-5)
 2026-10-30 09:16:43  Equity £98.67  bot -1.20%  vs S&P 500 -0.91%
+2026-11-02 09:31:46  New month-end signal 2026-10-30 -> learning + league + rebalance
+2026-11-02 09:31:46  Cost learning: 5 fills, observed 0.031%/trade -> using 0.166%
+2026-11-02 09:32:09  League (last 10y, Sharpe): Momentum top-5 1.11; Vol-scaled momentum top-5 1.06; SPY vol-target 1.02; Meta-learner (gentle Hedge) 1.01; Adaptive Asset Alloc 0.98
+2026-11-02 09:32:09  Champion stays 'Momentum top-5' (no challenger beat it by more than luck)
+2026-11-02 09:32:09  Targets (Momentum top-5): SPY 20%, QQQ 20%, IWM 20%, EFA 20%, DBC 20%
+2026-11-02 09:32:17  ORDER SELL VFEMl_EQ qty=-0.343 -> NEW
+2026-11-02 09:33:03  ORDER BUY R2USl_EQ qty=0.318 -> NEW
+2026-11-02 09:33:29  Equity £97.99  bot -1.88%  vs S&P 500 -1.62%
