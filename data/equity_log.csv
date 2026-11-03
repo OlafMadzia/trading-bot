@@ -4,3 +4,4 @@ date,equity_gbp,bot_return_pct,spy_return_pct,spy_equity_gbp,holdings,strategy
 2026-10-29,100.27,0.4,0.75,100.62,SPY:19.84;EEM:19.97;QQQ:19.53;DBC:19.23;EFA:20.16,Momentum top-5
 2026-10-30,98.67,-1.2,-0.91,98.96,SPY:19.46;EEM:19.63;QQQ:18.89;DBC:19.10;EFA:20.06,Momentum top-5
 2026-11-02,97.99,-1.88,-1.62,98.25,SPY:19.35;QQQ:18.76;DBC:18.81;IWM:19.59;EFA:19.96,Momentum top-5
+2026-11-03,97.37,-2.5,-1.85,98.02,SPY:19.28;QQQ:18.50;DBC:18.52;IWM:19.63;EFA:19.92,Momentum top-5

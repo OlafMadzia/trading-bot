@@ -56,3 +56,5 @@ RuntimeError: GET /equity/orders -> 401:
 2026-11-02 09:32:17  ORDER SELL VFEMl_EQ qty=-0.343 -> NEW
 2026-11-02 09:33:03  ORDER BUY R2USl_EQ qty=0.318 -> NEW
 2026-11-02 09:33:29  Equity £97.99  bot -1.88%  vs S&P 500 -1.62%
+2026-11-03 16:25:07  No new signal; holding (Momentum top-5)
+2026-11-03 16:25:14  Equity £97.37  bot -2.50%  vs S&P 500 -1.85%
