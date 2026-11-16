@@ -74,3 +74,5 @@ RuntimeError: GET /equity/orders -> 401:
 2026-11-12 16:57:34  Equity £98.50  bot -1.37%  vs S&P 500 +0.11%
 2026-11-13 16:39:05  No new signal; holding (Momentum top-5)
 2026-11-13 16:39:12  Equity £97.65  bot -2.22%  vs S&P 500 -1.33%
+2026-11-16 18:45:11  No new signal; holding (Momentum top-5)
+2026-11-16 18:45:18  Equity £97.06  bot -2.81%  vs S&P 500 -1.43%
